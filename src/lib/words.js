@@ -178,7 +178,7 @@ export const getWordOfDay = async (language) => {
       url = 'danish-words.json';
       break;
     default:
-      url = 'wordlist.json'; // Assuming English is default
+      url = 'english_words.json'; // Assuming English is default
       break;
   }
 
