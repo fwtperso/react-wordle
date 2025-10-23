@@ -17,10 +17,18 @@ const StatsModal = ({
   showAlert,
   solution,
   solutionIndex,
+  onNewGame,
 }) => {
   const handleShare = () => {
     shareStatus(guesses, isGameLost, isHardMode, solution, solutionIndex);
     showAlert('Game copied to clipboard', 'success');
+  };
+
+  const handleNewGameClick = () => {
+    if (onNewGame) {
+      onNewGame();
+    }
+    onClose();
   };
 
   return (
@@ -55,6 +63,9 @@ const StatsModal = ({
           </div>
           <div className={styles.share}>
             <button onClick={handleShare}>Share</button>
+            {isGameWon && (
+              <button onClick={handleNewGameClick}>New Game</button>
+            )}
           </div>
         </div>
       )}

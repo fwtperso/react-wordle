@@ -59,14 +59,14 @@ function App() {
   const { showAlert } = useAlert();
   const { selectedLanguage, setSelectedLanguage } = useSettings();
 
-  useEffect(() => {
-    const getWord = async () => {
-      const { solution, solutionIndex } = await getWordOfDay(selectedLanguage);
-      setSolution(solution);
-      setSolutionIndex(solutionIndex);
-    };
+  const fetchWord = async () => {
+    const { solution, solutionIndex } = await getWordOfDay(selectedLanguage);
+    setSolution(solution);
+    setSolutionIndex(solutionIndex);
+  };
 
-    getWord();
+  useEffect(() => {
+    fetchWord();
   }, [selectedLanguage]);
 
   // Show welcome modal
@@ -178,6 +178,14 @@ function App() {
     setCurrentGuess('');
   };
 
+  const handleNewGame = () => {
+    setGuesses([]);
+    setCurrentGuess('');
+    setIsGameWon(false);
+    setIsGameLost(false);
+    fetchWord(); 
+  };
+
   return (
     <div className={styles.container}>
       <Header
@@ -228,6 +236,7 @@ function App() {
         showAlert={showAlert}
         solution={solution}
         solutionIndex={solutionIndex}
+        onNewGame={handleNewGame}
       />
     </div>
   );
