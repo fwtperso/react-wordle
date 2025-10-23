@@ -1,0 +1,27 @@
+.container {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.options {
+  display: flex;
+  gap: 1rem;
+}
+
+.option {
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.option.selected {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}

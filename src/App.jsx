@@ -8,9 +8,9 @@ import SettingModal from 'components/SettingModal';
 import StatsModal from 'components/StatsModal';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useAlert from 'hooks/useAlert';
+import { useSettings } from './context/SettingsContext';
 import {
-  solution,
-  solutionIndex,
+  getWordOfDay,
   isWordValid,
   findFirstUnusedReveal,
   addStatsForCompletedGame,
@@ -42,11 +42,11 @@ function App() {
     totalGames: 0,
     successRate: 0,
   });
+
+  const [solution, setSolution] = useState('');
+  const [solutionIndex, setSolutionIndex] = useState(0);
   const [currentGuess, setCurrentGuess] = useState('');
-  const [guesses, setGuesses] = useState(() => {
-    if (boardState.solutionIndex !== solutionIndex) return [];
-    return boardState.guesses;
-  });
+  const [guesses, setGuesses] = useState([]);
   const [isJiggling, setIsJiggling] = useState(false);
   const [isGameWon, setIsGameWon] = useState(false);
   const [isGameLost, setIsGameLost] = useState(false);
@@ -57,6 +57,17 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(theme === 'dark');
   const [isHighContrastMode, setIsHighContrastMode] = useState(highContrast);
   const { showAlert } = useAlert();
+  const { selectedLanguage, setSelectedLanguage } = useSettings();
+
+  useEffect(() => {
+    const getWord = async () => {
+      const { solution, solutionIndex } = await getWordOfDay(selectedLanguage);
+      setSolution(solution);
+      setSolutionIndex(solutionIndex);
+    };
+
+    getWord();
+  }, [selectedLanguage]);
 
   // Show welcome modal
   useEffect(() => {
@@ -67,20 +78,33 @@ function App() {
 
   // Save boardState to localStorage
   useEffect(() => {
-    setBoardState({
-      guesses,
-      solutionIndex,
-    });
+    if (solutionIndex) {
+      setBoardState({
+        guesses,
+        solutionIndex,
+      });
+    }
     // eslint-disable-next-line
-  }, [guesses]);
+  }, [guesses, solutionIndex]);
+  
+  // Load guesses from localStorage
+  useEffect(() => {
+    if (boardState.solutionIndex === solutionIndex) {
+      setGuesses(boardState.guesses);
+    } else {
+      setGuesses([]);
+    }
+  // eslint-disable-next-line
+  }, [solutionIndex]);
+
 
   // Check game winning or losing
   useEffect(() => {
-    if (guesses.includes(solution.toUpperCase())) {
+    if (solution && guesses.includes(solution.toUpperCase())) {
       setIsGameWon(true);
       setTimeout(() => showAlert('Well done', 'success'), ALERT_DELAY);
       setTimeout(() => setIsStatsModalOpen(true), ALERT_DELAY + 1000);
-    } else if (guesses.length === MAX_CHALLENGES) {
+    } else if (solution && guesses.length === MAX_CHALLENGES) {
       setIsGameLost(true);
       setTimeout(
         () => showAlert(`The word was ${solution}`, 'error', true),
@@ -89,7 +113,7 @@ function App() {
       setTimeout(() => setIsStatsModalOpen(true), ALERT_DELAY + 1000);
     }
     // eslint-disable-next-line
-  }, [guesses]);
+  }, [guesses, solution]);
 
   useEffect(() => {
     if (isDarkMode) document.body.setAttribute('data-theme', 'dark');
@@ -137,7 +161,7 @@ function App() {
     }
 
     if (isHardMode) {
-      const firstMissingReveal = findFirstUnusedReveal(currentGuess, guesses);
+      const firstMissingReveal = findFirstUnusedReveal(currentGuess, guesses, solution);
       if (firstMissingReveal) {
         setIsJiggling(true);
         return showAlert(firstMissingReveal, 'error');
@@ -167,12 +191,14 @@ function App() {
         guesses={guesses}
         isJiggling={isJiggling}
         setIsJiggling={setIsJiggling}
+        solution={solution}
       />
       <Keyboard
         onEnter={handleEnter}
         onDelete={handleDelete}
         onKeyDown={handleKeyDown}
         guesses={guesses}
+        solution={solution}
       />
       <InfoModal
         isOpen={isInfoModalOpen}
@@ -187,6 +213,8 @@ function App() {
         setIsHardMode={handleHardMode}
         setIsDarkMode={handleDarkMode}
         setIsHighContrastMode={handleHighContrastMode}
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
       />
       <StatsModal
         isOpen={isStatsModalOpen}
@@ -198,6 +226,8 @@ function App() {
         isHardMode={isHardMode}
         guesses={guesses}
         showAlert={showAlert}
+        solution={solution}
+        solutionIndex={solutionIndex}
       />
     </div>
   );

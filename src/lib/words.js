@@ -1,15 +1,11 @@
 import { MAX_CHALLENGES } from 'constants/settings';
 import { VALID_GUESSES } from 'constants/validGuesses';
-import { WORDS } from 'constants/wordList';
 
 export const isWordValid = word => {
-  return (
-    VALID_GUESSES.includes(word.toLowerCase()) ||
-    WORDS.includes(word.toLowerCase())
-  );
+  return VALID_GUESSES.includes(word.toLowerCase());
 };
 
-export const getGuessStatuses = guess => {
+export const getGuessStatuses = (guess, solution) => {
   const splitGuess = guess.toLowerCase().split('');
   const splitSolution = solution.split('');
 
@@ -52,7 +48,7 @@ export const getGuessStatuses = guess => {
   return statuses;
 };
 
-export const getStatuses = guesses => {
+export const getStatuses = (guesses, solution) => {
   const charObj = {};
   const splitSolution = solution.toUpperCase().split('');
 
@@ -70,14 +66,14 @@ export const getStatuses = guesses => {
 // build a set of previously revealed letters - present and correct
 // guess must use correct letters in that space and any other revealed letters
 // also check if all revealed instances of a letter are used (i.e. two C's)
-export const findFirstUnusedReveal = (word, guesses) => {
+export const findFirstUnusedReveal = (word, guesses, solution) => {
   if (guesses.length === 0) {
     return false;
   }
 
   const lettersLeftArray = [];
   const guess = guesses[guesses.length - 1];
-  const statuses = getGuessStatuses(guess);
+  const statuses = getGuessStatuses(guess, solution);
   const splitWord = word.toUpperCase().split('');
   const splitGuess = guess.toUpperCase().split('');
 
@@ -137,21 +133,21 @@ const getSuccessRate = gameStats => {
   );
 };
 
-export const shareStatus = (guesses, isGameLost, isHardMode) => {
+export const shareStatus = (guesses, isGameLost, isHardMode, solution, solutionIndex) => {
   const textToShare =
     `Wordle Game
 #${solutionIndex} 
 ${isGameLost ? 'X' : guesses.length}/${MAX_CHALLENGES} 
 ${isHardMode ? 'Hard Mode' : ''}
-\n` + generateEmojiGrid(guesses);
+\n` + generateEmojiGrid(guesses, solution);
 
   navigator.clipboard.writeText(textToShare);
 };
 
-export const generateEmojiGrid = guesses => {
+export const generateEmojiGrid = (guesses, solution) => {
   return guesses
     .map(guess => {
-      const status = getGuessStatuses(guess);
+      const status = getGuessStatuses(guess, solution);
       const splitGuess = guess.split('');
 
       return splitGuess
@@ -170,7 +166,31 @@ export const generateEmojiGrid = guesses => {
     .join('\n');
 };
 
-export const getWordOfDay = () => {
+export const getWordOfDay = async (language) => {
+  let wordList = [];
+  let url = '';
+
+  switch (language) {
+    case 'Français':
+      url = 'french-words.json';
+      break;
+    case 'Dansk':
+      url = 'danish-words.json';
+      break;
+    default:
+      url = 'wordlist.json'; // Assuming English is default
+      break;
+  }
+
+  try {
+    const response = await fetch(url);
+    wordList = await response.json();
+  } catch (error) {
+    console.error(`Error fetching word list for ${language}:`, error);
+    // Fallback to a default word or handle the error appropriately
+    wordList = ['REACT']; 
+  }
+
   // January 1, 2022 Game Epoch
   const epochMs = new Date(2022, 0).valueOf();
   const now = Date.now();
@@ -178,11 +198,13 @@ export const getWordOfDay = () => {
   const index = Math.floor((now - epochMs) / msInDay);
   const nextday = (index + 1) * msInDay + epochMs;
 
+  const solution = wordList[index % wordList.length].toUpperCase();
+
+  console.log(`Language: ${language}, Solution: '${solution}'`);
+
   return {
-    solution: WORDS[index % WORDS.length],
+    solution: solution,
     solutionIndex: index,
     tomorrow: nextday,
   };
 };
-
-export const { solution, solutionIndex, tomorrow } = getWordOfDay();

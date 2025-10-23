@@ -1,5 +1,6 @@
 import Modal from 'components/Modal';
 import Switch from 'components/Switch';
+import LanguageSelector from '../LanguageSelector/LanguageSelector';
 import styles from './SettingModal.module.scss';
 
 const SettingModal = ({
@@ -11,6 +12,8 @@ const SettingModal = ({
   setIsHardMode,
   setIsDarkMode,
   setIsHighContrastMode,
+  selectedLanguage,
+  setSelectedLanguage,
 }) => {
   return (
     <Modal title="Setting" isOpen={isOpen} onClose={onClose}>
@@ -26,6 +29,10 @@ const SettingModal = ({
         desc="For improved color vision"
         isOn={isHighContrastMode}
         onToggle={setIsHighContrastMode}
+      />
+      <LanguageSelector
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
       />
     </Modal>
   );
