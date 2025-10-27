@@ -12,7 +12,11 @@ export const AlertProvider = ({ children }) => {
     setStatus(alertStatus);
     setIsVisible(true);
 
-    if (!persist) setTimeout(() => setIsVisible(false), 2000);
+    if (persist) {
+      setTimeout(() => setIsVisible(false), 7000);
+    } else {
+      setTimeout(() => setIsVisible(false), 2000);
+    }
   };
 
   return (
