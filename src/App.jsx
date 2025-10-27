@@ -1,3 +1,9 @@
+/**
+ * Main application component for the Wordle game.
+ * Manages game state, user interactions, modals, and game logic.
+ * Handles word validation, guess submission, win/loss conditions, and language selection.
+ */
+
 import { useState, useEffect } from 'react';
 import Header from 'components/Header';
 import Grid from 'components/Grid';
@@ -60,20 +66,37 @@ function App() {
   const { showAlert } = useAlert();
   const { selectedLanguage, setSelectedLanguage } = useSettings();
 
+  /**
+   * Fetches the word of the day based on the selected language.
+   * Updates the solution and solution index state.
+   */
   const fetchWord = async () => {
     const { solution, solutionIndex } = await getWordOfDay(selectedLanguage);
     setSolution(solution);
     setSolutionIndex(solutionIndex);
   };
 
+  /**
+   * Fetches a random word from the word list for the selected language.
+   * Used when starting a new game.
+   */
   const fetchRandomWord = async () => {
     const { solution, solutionIndex } = await getRandomWord(selectedLanguage);
     setSolution(solution);
     setSolutionIndex(solutionIndex);
   };
 
+  /**
+   * Effect: Fetches a new word and resets the game when the language changes.
+   * This ensures users get a fresh game in their selected language.
+   */
   useEffect(() => {
     fetchWord();
+    // Reset game state when language changes
+    setGuesses([]);
+    setCurrentGuess('');
+    setIsGameWon(false);
+    setIsGameLost(false);
   }, [selectedLanguage]);
 
   // Show welcome modal
@@ -83,7 +106,10 @@ function App() {
     // eslint-disable-next-line
   }, []);
 
-  // Save boardState to localStorage
+  /**
+   * Effect: Saves the current board state (guesses and solution index) to localStorage.
+   * This allows the game to persist across browser sessions.
+   */
   useEffect(() => {
     if (solutionIndex) {
       setBoardState({
@@ -93,8 +119,11 @@ function App() {
     }
     // eslint-disable-next-line
   }, [guesses, solutionIndex]);
-  
-  // Load guesses from localStorage
+
+  /**
+   * Effect: Loads saved guesses from localStorage if they match the current solution.
+   * Resets guesses if the solution has changed.
+   */
   useEffect(() => {
     if (boardState.solutionIndex === solutionIndex) {
       setGuesses(boardState.guesses);
@@ -104,8 +133,10 @@ function App() {
   // eslint-disable-next-line
   }, [solutionIndex]);
 
-
-  // Check game winning or losing
+  /**
+   * Effect: Checks for win/loss conditions after each guess.
+   * Shows appropriate alerts and opens the stats modal when the game ends.
+   */
   useEffect(() => {
     if (solution && guesses.includes(solution.toUpperCase())) {
       setIsGameWon(true);
@@ -122,6 +153,10 @@ function App() {
     // eslint-disable-next-line
   }, [guesses, solution]);
 
+  /**
+   * Effect: Applies theme and contrast mode settings to the document body.
+   * Updates data attributes that CSS uses for styling.
+   */
   useEffect(() => {
     if (isDarkMode) document.body.setAttribute('data-theme', 'dark');
     else document.body.removeAttribute('data-theme');
@@ -131,29 +166,52 @@ function App() {
     else document.body.removeAttribute('data-mode');
   }, [isDarkMode, isHighContrastMode]);
 
+  /**
+   * Toggles dark mode on/off and saves the preference to localStorage.
+   */
   const handleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     setTheme(isDarkMode ? 'light' : 'dark');
   };
 
+  /**
+   * Toggles high contrast mode on/off for improved color vision accessibility.
+   */
   const handleHighContrastMode = () => {
     setIsHighContrastMode(!isHighContrastMode);
     setHighContrast(!isHighContrastMode);
   };
 
+  /**
+   * Toggles hard mode on/off. In hard mode, revealed hints must be used in subsequent guesses.
+   */
   const handleHardMode = () => {
     setIsHardMode(!isHardMode);
     setHardMode(!isHardMode);
   };
 
+  /**
+   * Handles letter key presses from the keyboard.
+   * Adds the letter to the current guess if within length limits and game is not won.
+   * @param {string} letter - The letter to add to the current guess
+   */
   const handleKeyDown = letter =>
     currentGuess.length < MAX_WORD_LENGTH &&
     !isGameWon &&
     setCurrentGuess(currentGuess + letter);
 
+  /**
+   * Handles the delete/backspace action.
+   * Removes the last letter from the current guess.
+   */
   const handleDelete = () =>
     setCurrentGuess(currentGuess.slice(0, currentGuess.length - 1));
 
+  /**
+   * Handles the enter key press to submit a guess.
+   * Validates the guess length, checks if it's a valid word,
+   * enforces hard mode rules, and updates game state accordingly.
+   */
   const handleEnter = () => {
     if (isGameWon || isGameLost) return;
 
@@ -185,6 +243,10 @@ function App() {
     setCurrentGuess('');
   };
 
+  /**
+   * Starts a new game with a random word.
+   * Resets all game state including guesses, current input, and win/loss status.
+   */
   const handleNewGame = () => {
     setGuesses([]);
     setCurrentGuess('');
