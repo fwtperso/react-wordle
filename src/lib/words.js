@@ -7,7 +7,7 @@ export const isWordValid = word => {
 
 export const getGuessStatuses = (guess, solution) => {
   const splitGuess = guess.toLowerCase().split('');
-  const splitSolution = solution.split('');
+  const splitSolution = solution.toLowerCase().split('');
 
   const statuses = [];
   const solutionCharsTaken = splitSolution.map(_ => false);
@@ -208,3 +208,50 @@ export const getWordOfDay = async (language) => {
     tomorrow: nextday,
   };
 };
+
+export const getRandomWord = async (language) => {
+  let wordList = [];
+  let url = '';
+
+  switch (language) {
+    case 'Français':
+      url = 'french-words.json';
+      break;
+    case 'Dansk':
+      url = 'danish-words.json';
+      break;
+    default:
+      url = 'english_words.json';
+      break;
+  }
+
+  try {
+    const response = await fetch(url);
+    wordList = await response.json();
+  } catch (error) {
+    console.error(`Error fetching word list for ${language}:`, error);
+    wordList = ['REACT'];
+  }
+
+  const randomIndex = Math.floor(Math.random() * wordList.length);
+  const solution = wordList[randomIndex].toUpperCase();
+
+  const epochMs = new Date(2022, 0).valueOf();
+  const now = Date.now();
+  const msInDay = 86400000;
+  const index = Math.floor((now - epochMs) / msInDay);
+  const nextday = (index + 1) * msInDay + epochMs;
+
+  return {
+    solution: solution,
+    solutionIndex: index,
+    tomorrow: nextday,
+  };
+};
+
+// Export tomorrow for countdown timer
+const epochMs = new Date(2022, 0).valueOf();
+const now = Date.now();
+const msInDay = 86400000;
+const index = Math.floor((now - epochMs) / msInDay);
+export const tomorrow = (index + 1) * msInDay + epochMs;

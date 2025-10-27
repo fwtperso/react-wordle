@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import styles from './Cell.module.scss';
 
+
 const Cell = ({ value, status, position, isCompleted }) => {
   const classes = classNames({
     [styles.cell]: true,

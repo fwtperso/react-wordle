@@ -2,6 +2,7 @@
   width: 60px;
   height: 60px;
   background-color: var(--color-cell);
+  color: var(--color-cell-text);
   border-radius: 10px;
   font-size: 2.6rem;
   font-weight: 700;
@@ -21,17 +22,21 @@
   animation-duration: 0.3s;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
+  color: #fff;
 
   &.absent {
     animation-name: revealAbsentCell;
+    background-color: var(--color-absent);
   }
 
   &.correct {
     animation-name: revealCorrectCell;
+    background-color: var(--color-correct);
   }
 
   &.present {
     animation-name: revealPresentCell;
+    background-color: var(--color-present);
   }
 
   .letter {

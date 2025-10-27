@@ -1,16 +1,20 @@
-import { BsBarChart, BsGear, BsInfoCircle } from 'react-icons/bs';
+import { BsBarChart, BsGear, BsInfoCircle, BsArrowClockwise } from 'react-icons/bs';
 import './Header.module.scss';
 
 const Header = ({
   setIsInfoModalOpen,
   setIsStatsModalOpen,
   setIsSettingsModalOpen,
+  onNewGame,
 }) => {
   return (
     <header>
       <div>
         <button onClick={() => setIsInfoModalOpen(true)}>
           <BsInfoCircle size="1.6rem" color="var(--color-icon)" />
+        </button>
+        <button onClick={onNewGame}>
+          <BsArrowClockwise size="1.6rem" color="var(--color-icon)" />
         </button>
       </div>
       <h1>WORDLE</h1>

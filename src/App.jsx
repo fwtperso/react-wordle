@@ -11,6 +11,7 @@ import useAlert from 'hooks/useAlert';
 import { useSettings } from './context/SettingsContext';
 import {
   getWordOfDay,
+  getRandomWord,
   isWordValid,
   findFirstUnusedReveal,
   addStatsForCompletedGame,
@@ -61,6 +62,12 @@ function App() {
 
   const fetchWord = async () => {
     const { solution, solutionIndex } = await getWordOfDay(selectedLanguage);
+    setSolution(solution);
+    setSolutionIndex(solutionIndex);
+  };
+
+  const fetchRandomWord = async () => {
+    const { solution, solutionIndex } = await getRandomWord(selectedLanguage);
     setSolution(solution);
     setSolutionIndex(solutionIndex);
   };
@@ -183,7 +190,7 @@ function App() {
     setCurrentGuess('');
     setIsGameWon(false);
     setIsGameLost(false);
-    fetchWord(); 
+    fetchRandomWord(); 
   };
 
   return (
@@ -192,6 +199,7 @@ function App() {
         setIsInfoModalOpen={setIsInfoModalOpen}
         setIsStatsModalOpen={setIsStatsModalOpen}
         setIsSettingsModalOpen={setIsSettingsModalOpen}
+        onNewGame={handleNewGame} 
       />
       <Alert />
       <Grid
