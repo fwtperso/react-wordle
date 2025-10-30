@@ -1,8 +1,42 @@
 import { MAX_CHALLENGES } from 'constants/settings';
 import { VALID_GUESSES } from 'constants/validGuesses';
 
-export const isWordValid = word => {
-  return VALID_GUESSES.includes(word.toLowerCase());
+// Cache for loaded word lists
+const wordListCache = {};
+
+export const isWordValid = async (word, language = 'English') => {
+  // For English, use the existing VALID_GUESSES constant
+  if (language === 'English') {
+    return VALID_GUESSES.includes(word.toLowerCase());
+  }
+
+  // For other languages, fetch and check the appropriate word list
+  let url = '';
+  switch (language) {
+    case 'Français':
+      url = 'french-words.json';
+      break;
+    case 'Dansk':
+      url = 'danish-words.json';
+      break;
+    default:
+      return VALID_GUESSES.includes(word.toLowerCase());
+  }
+
+  // Use cached word list if available
+  if (!wordListCache[language]) {
+    try {
+      const response = await fetch(url);
+      const wordList = await response.json();
+      // Store normalized (uppercase) versions for comparison
+      wordListCache[language] = wordList.map(w => w.toUpperCase());
+    } catch (error) {
+      console.error(`Error fetching word list for ${language}:`, error);
+      return false;
+    }
+  }
+
+  return wordListCache[language].includes(word.toUpperCase());
 };
 
 export const getGuessStatuses = (guess, solution) => {

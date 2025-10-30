@@ -212,7 +212,7 @@ function App() {
    * Validates the guess length, checks if it's a valid word,
    * enforces hard mode rules, and updates game state accordingly.
    */
-  const handleEnter = () => {
+  const handleEnter = async () => {
     if (isGameWon || isGameLost) return;
 
     if (currentGuess.length < MAX_WORD_LENGTH) {
@@ -220,7 +220,8 @@ function App() {
       return showAlert('Not enough letters', 'error');
     }
 
-    if (!isWordValid(currentGuess)) {
+    const isValid = await isWordValid(currentGuess, selectedLanguage);
+    if (!isValid) {
       setIsJiggling(true);
       return showAlert('Not in word list', 'error');
     }

@@ -1,27 +1,54 @@
-.container {
+.row {
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
   margin-bottom: 1.5rem;
+
+  & > div:first-of-type {
+    margin-right: 1rem;
+  }
 }
 
 .title {
   font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--color-text-primary);
 }
 
-.options {
+.buttonGroup {
   display: flex;
-  gap: 1rem;
-}
+  align-items: center;
 
-.option {
-  background-color: #eee;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-}
+  :global {
+    .MuiButton-root {
+      font-family: 'Baloo 2', sans-serif;
+      font-weight: 500;
+      min-width: 3rem;
+      padding: 0.4rem 0.8rem;
+      text-align: center;
+      color: var(--color-text-primary);
+      border-color: grey;
 
-.option.selected {
-  background-color: #3498db;
-  color: white;
-  border-color: #3498db;
+      &.MuiButton-contained {
+        background-color: var(--color-toggle);
+        color: white;
+        border-color: var(--color-toggle);
+
+        &:hover {
+          background-color: var(--color-toggle);
+          opacity: 0.9;
+        }
+      }
+
+      &.MuiButton-outlined {
+        border-color: grey;
+
+        &:hover {
+          background-color: rgba(128, 128, 128, 0.1);
+          border-color: grey;
+        }
+      }
+    }
+  }
 }
